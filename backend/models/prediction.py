@@ -5,7 +5,7 @@ class Prediction:
     """Prediction model"""
     
     @staticmethod
-    def create(db, user_id, measurement_value, predicted_age, plant_name=None):
+    def create(db, user_id, measurement_value, predicted_age, plant_name=None, confidence=None):
         """Create a new prediction"""
         if isinstance(user_id, str):
             user_id = ObjectId(user_id)
@@ -15,6 +15,7 @@ class Prediction:
             'plant_name': plant_name,
             'measurement_value': float(measurement_value),
             'predicted_age': float(predicted_age),
+            'confidence': float(confidence) if confidence is not None else None,
             'created_at': datetime.utcnow()
         }
         
@@ -131,6 +132,7 @@ class Prediction:
             'plant_name': prediction.get('plant_name'),
             'measurement_value': prediction['measurement_value'],
             'predicted_age': prediction['predicted_age'],
+            'confidence': prediction.get('confidence'),
             'created_at': prediction['created_at'].isoformat() if prediction.get('created_at') else None
         }
         

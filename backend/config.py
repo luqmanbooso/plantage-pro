@@ -39,3 +39,6 @@ class Config:
     
     # Model path
     MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'plant_age_model.pkl')
+    
+    # PlantNet API
+    PLANTNET_API_KEY = os.getenv('PLANTNET_API_KEY')

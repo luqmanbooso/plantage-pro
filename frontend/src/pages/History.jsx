@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { predictionService } from '../services';
-import { Search, Trash2, Download, Calendar, Leaf, Filter, X, ChevronRight } from 'lucide-react';
+import { Search, Trash2, Download, Calendar, Leaf, Filter, X, ChevronRight, Sparkles } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -193,7 +193,13 @@ const History = () => {
                         </h4>
                         <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
                            <span className="flex items-center"><Calendar className="w-3 h-3 mr-1" /> {new Date(pred.created_at).toLocaleDateString()}</span>
-                           <span className="flex items-center">Value: {pred.measurement_value}</span>
+                           <span className="flex items-center">Height: {pred.measurement_value} cm</span>
+                           {pred.confidence && (
+                             <span className="flex items-center text-emerald-500/80">
+                               <Sparkles className="w-3 h-3 mr-1" /> 
+                               {(pred.confidence * 100).toFixed(0)}% Match
+                             </span>
+                           )}
                         </div>
                      </div>
                   </div>

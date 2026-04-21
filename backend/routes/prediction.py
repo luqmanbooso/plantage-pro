@@ -223,16 +223,23 @@ def upload_prediction():
         if file.filename == '':
             return error_response("Empty filename", 400)
             
-        # Optional plant name
-        plant_name = request.form.get('plant_name')
+        # Optional plant name from user
+        user_provided_name = request.form.get('plant_name')
         
-        # Process image to get measurement
+        # Step 1: Identify Plant (PlantNet)
+        identified_name, confidence = vision_service.identify_plant(file)
+        
+        # Determine final plant name to use
+        # If user didn't provide one, use the identified one
+        plant_name = user_provided_name or identified_name
+        
+        # Step 2: Process image to get measurement (Height proxy)
         try:
             measurement_value = vision_service.extract_measurement(file)
         except ValueError as e:
             return error_response(str(e), 400)
             
-        # Make prediction
+        # Step 3: Make prediction with our ML model
         try:
             predicted_age = prediction_service.predict(measurement_value)
         except Exception as e:
@@ -245,13 +252,18 @@ def upload_prediction():
             user_id=user['_id'],
             measurement_value=measurement_value,
             predicted_age=predicted_age,
-            plant_name=plant_name
+            plant_name=plant_name,
+            confidence=confidence
         )
         
         return success_response(
             data={
                 'prediction': Prediction.to_dict(prediction),
-                'extracted_measurement': measurement_value
+                'extracted_measurement': measurement_value,
+                'identification': {
+                    'species': identified_name,
+                    'confidence': round(confidence * 100, 2)
+                }
             },
             message="Image analyzed and prediction created successfully",
             status=201

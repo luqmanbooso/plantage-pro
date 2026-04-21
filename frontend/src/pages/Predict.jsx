@@ -231,21 +231,27 @@ const Predict = () => {
               <h2 className="text-4xl font-bold">Your Results</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <ResultCard 
-                label="Measurement" 
+                label="Estimated Height" 
                 value={result.measurement_value} 
-                unit="" 
+                unit="cm" 
                 icon={<Ruler className="w-5 h-5" />} 
               />
               <ResultCard 
-                label="Plant" 
+                label="Identified As" 
                 value={result.plant_name || "Unknown"} 
                 unit="" 
                 icon={<Leaf className="w-5 h-5" />} 
               />
               <ResultCard 
-                label="Calculated" 
+                label="AI Confidence" 
+                value={result.confidence ? `${(result.confidence * 100).toFixed(1)}%` : "N/A"} 
+                unit="" 
+                icon={<Sparkles className="w-5 h-5" />} 
+              />
+              <ResultCard 
+                label="Analyzed On" 
                 value={new Date(result.created_at).toLocaleDateString()} 
                 unit="" 
                 icon={<Calendar className="w-5 h-5" />} 
