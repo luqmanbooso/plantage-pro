@@ -70,12 +70,16 @@ const History = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#050d06] text-white pt-32 pb-20 px-6 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#030703] text-white pt-32 pb-20 px-6 relative overflow-hidden font-sans">
       
-      {/* PERSISTENT BACKGROUND */}
+      {/* PERSISTENT BACKGROUND - Toned down */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <img src="/bg-leaves.png" alt="BG" className="absolute -top-20 -right-20 w-[60%] h-auto rotate-180 mix-blend-screen opacity-10 blur-[3px]" />
-        <img src="/bg-leaves.png" alt="BG" className="absolute -bottom-40 -left-40 w-[60%] h-auto mix-blend-screen opacity-10" />
+        <img src="/bg-leaves.png" alt="BG" className="absolute -top-20 -right-20 w-[60%] h-auto rotate-180 mix-blend-screen opacity-[0.03] blur-[5px]" />
+        <img src="/bg-leaves.png" alt="BG" className="absolute -bottom-40 -left-40 w-[60%] h-auto mix-blend-screen opacity-[0.03] blur-[2px]" />
+        
+        {/* Subtler Ambient Glows */}
+        <div className="absolute top-[20%] right-[10%] w-[500px] h-[500px] bg-emerald-900/5 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[10%] left-[5%] w-[600px] h-[600px] bg-emerald-900/5 blur-[150px] rounded-full" />
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
@@ -135,10 +139,10 @@ const History = () => {
              </div>
            ) : (
              predictions.map((pred, i) => (
-                <div key={pred.id} className="group bg-[#0d160e] border border-white/5 rounded-[32px] p-6 lg:p-8 flex flex-col md:flex-row items-center justify-between hover:border-emerald-500/30 transition-all duration-500 gap-8">
+                <div key={pred.id} className="group bg-[#080c08] border border-white/5 rounded-[32px] p-6 lg:p-8 flex flex-col md:flex-row items-center justify-between hover:border-emerald-500/30 transition-all duration-500 gap-8">
                    <div className="flex items-center gap-8 w-full md:w-auto">
                       <div className="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center text-emerald-400 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 overflow-hidden">
-                         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent" />
+                         
                          <Leaf className="w-7 h-7 relative z-10" />
                       </div>
                       <div className="space-y-1">
