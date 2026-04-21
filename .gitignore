@@ -55,3 +55,9 @@ Thumbs.db
 frontend/dist/
 frontend/build/
 frontend/node_modules/
+
+# ML Data & Models
+backend/training_images/
+backend/plant_age_model.pkl
+backend/image_dataset.csv
+backend/uploads/

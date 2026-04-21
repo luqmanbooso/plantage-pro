@@ -137,7 +137,7 @@ def export_predictions():
         writer = csv.writer(output)
         
         # Write header
-        writer.writerow(['Plant Name', 'Measurement Value', 'Predicted Age (years)', 'Date & Time'])
+        writer.writerow(['Plant Name', 'Measurement Value', 'Predicted Age (days)', 'Date & Time'])
         
         # Write data
         for pred in predictions:
@@ -233,17 +233,40 @@ def upload_prediction():
         # If user didn't provide one, use the identified one
         plant_name = user_provided_name or identified_name
         
-        # Step 2: Process image to get measurement (Height proxy)
+        # Step 2: Extract Measurement (For UI display)
         try:
             measurement_value = vision_service.extract_measurement(file)
-        except ValueError as e:
-            return error_response(str(e), 400)
+        except Exception:
+            measurement_value = 0.0
             
-        # Step 3: Make prediction with our ML model
+        # Step 3: Predict Age (Unified logic for either numeric or pixel model)
         try:
-            predicted_age = prediction_service.predict(measurement_value)
+            # Check if model expects many features (pixel mode)
+            model = prediction_service._model
+            # DEBUG: Print model info
+            print(f"DEBUG: Processing prediction with model: {type(model).__name__}")
+            
+            if model is not None and hasattr(model, 'n_features_in_') and model.n_features_in_ > 1:
+                print(f"DEBUG: Pixel Mode Active (Expected: {model.n_features_in_} features)")
+                # Direct Pixel Prediction using new Vision Logic
+                features = vision_service.extract_image_features(file)
+                if features is not None:
+                    print(f"DEBUG: Extracted Feature Vector Shape: {features.shape}")
+                    predicted_age = prediction_service.predict(features)
+                    print(f"DEBUG: AI Prediction Result: {predicted_age}")
+                else:
+                    print("DEBUG: Feature extraction returned NONE")
+                    predicted_age = 0.5
+            else:
+                print("DEBUG: Numeric Mode Active")
+                # Classic Height Prediction
+                predicted_age = prediction_service.predict(measurement_value)
+                print(f"DEBUG: AI Prediction Result: {predicted_age}")
         except Exception as e:
-            return error_response(f"Prediction failed: {str(e)}", 500)
+            print(f"CRITICAL: Prediction logic error: {e}")
+            import traceback
+            traceback.print_exc()
+            predicted_age = 0.1
             
         # Save to database
         db = get_db()

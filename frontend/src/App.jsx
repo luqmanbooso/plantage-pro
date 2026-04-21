@@ -6,19 +6,10 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Predict from "./pages/Predict";
 import History from "./pages/History";
+import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 import Navbar from "./components/Navbar";
-
-// Protected Route Component
-const ProtectedRoute = ({ children, requireAdmin = false }) => {
-  const { user, loading } = useAuth();
-  
-  if (loading) return <div className="min-h-screen bg-[#111311] flex justify-center items-center text-[#4ADE80]">Loading...</div>;
-  if (!user) return <Navigate to="/login" replace />;
-  if (requireAdmin && user.role !== 'admin') return <Navigate to="/predict" replace />;
-  
-  return children;
-};
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -41,6 +32,11 @@ function App() {
             <Route path="/history" element={
               <ProtectedRoute>
                 <History />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             } />
             

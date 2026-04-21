@@ -31,43 +31,39 @@ class PredictionService:
             print(f"ERROR: Failed to load ML model: {e}")
             raise
     
-    def predict(self, measurement_value):
+    def predict(self, input_data):
         """
-        Predict plant age from measurement value
+        Predict plant age from measurement value or feature vector
         
         Args:
-            measurement_value: Single numeric measurement
+            input_data: Single numeric measurement or pixel feature vector
             
         Returns:
-            float: Predicted age in years (with decimal precision)
+            float: Predicted age in days
         """
         if self._model is None:
             raise RuntimeError("Model not loaded")
         
         try:
-            # Validate input
-            measurement = float(measurement_value)
-            
-            if measurement <= 0:
-                raise ValueError("Measurement value must be positive")
-            
-            # Prepare input (reshape for sklearn)
-            X = np.array([[measurement]])
+            # If input_data is a feature vector (e.g., pixel data)
+            if isinstance(input_data, (list, np.ndarray)):
+                X = np.array(input_data).reshape(1, -1)
+            else:
+                # Traditional single-value numeric input
+                measurement = float(input_data)
+                X = np.array([[measurement]])
             
             # Make prediction
-            predicted_age = self._model.predict(X)[0]
+            prediction = self._model.predict(X)
             
-            # Round to 1 decimal place
-            predicted_age = round(float(predicted_age), 1)
+            # Extract the raw number (Scikit-learn returns an array [val])
+            predicted_age = float(prediction[0])
             
-            # Ensure non-negative
-            predicted_age = max(0, predicted_age)
+            # Round and ensure it's at least a small positive number
+            return round(max(0.1, predicted_age), 1)
             
-            return predicted_age
-            
-        except ValueError as e:
-            raise ValueError(f"Invalid measurement value: {e}")
         except Exception as e:
+            print(f"DEBUG: Prediction model error: {e}")
             raise RuntimeError(f"Prediction failed: {e}")
     
     def get_model_info(self):

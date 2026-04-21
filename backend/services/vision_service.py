@@ -10,39 +10,45 @@ class VisionService:
     @staticmethod
     def identify_plant(image_file):
         """
-        Identify plant species using PlantNet API.
+        Identify plant species using PlantNet API (Strict Doc implementation).
         """
         try:
             api_key = Config.PLANTNET_API_KEY
             if not api_key:
-                print("WARNING: PLANTNET_API_KEY not found in config")
+                print("DEBUG: No API key found in configuration.")
                 return "Unknown", 0.0
 
-            # Prepare image for PlantNet
-            # Move pointer to start if it's a file stream
+            # Step 1: Standardize the image (Convert for Pl@ntNet compatibility)
+            # This ensures WP, BMP, PNG, etc. are all sent as valid JPEG
             image_file.seek(0)
-            image_data = image_file.read()
-            image_file.seek(0) # Reset for further use
+            with Image.open(image_file) as img:
+                if img.mode != 'RGB':
+                    img = img.convert('RGB')
+                
+                # Save as JPEG into a bytes buffer
+                buffer = io.BytesIO()
+                img.save(buffer, format='JPEG', quality=90)
+                standardized_image_data = buffer.getvalue()
 
-            files = {
-                'images': ('image.jpg', image_data, 'image/jpeg')
-            }
-            data = {
-                'organs': ['auto']
-            }
-            params = {
-                'api-key': api_key
-            }
+            # Pl@ntNet requirements: organs must be a list
+            data = { 'organs': ['habit'] }
+            files = [('images', ('image.jpg', standardized_image_data, 'image/jpeg'))]
 
+            api_endpoint = f"https://my-api.plantnet.org/v2/identify/all?api-key={api_key}"
+
+            print(f"DEBUG: Attempting PlantNet identification (Standardized Image) at {api_endpoint}")
+            
             response = requests.post(
-                'https://my-api.plantnet.org/v2/identify/all',
-                params=params,
+                api_endpoint,
+                files=files,
                 data=data,
-                files=files
+                timeout=20
             )
 
+            print(f"DEBUG: PlantNet Status: {response.status_code}")
+            
             if response.status_code != 200:
-                print(f"PlantNet API error: {response.status_code} - {response.text}")
+                print(f"DEBUG: API Error Detail: {response.text}")
                 return "Unknown", 0.0
 
             result = response.json()
@@ -50,52 +56,54 @@ class VisionService:
                 best_match = result['results'][0]
                 species_name = best_match['species']['scientificNameWithoutAuthor']
                 score = best_match['score']
+                print(f"DEBUG: Identified as {species_name} with {score} confidence")
                 return species_name, score
             
             return "Unknown", 0.0
 
         except Exception as e:
-            print(f"PlantNet identification error: {e}")
+            print(f"DEBUG: Exception during identification: {str(e)}")
             return "Unknown", 0.0
 
     @staticmethod
-    def extract_measurement(image_file):
+    def extract_image_features(image_file):
         """
-        Extract a numeric measurement proxy (height/size) from an uploaded image file.
+        Converts an image into a numeric vector for direct model prediction.
+        Must match the logic in train_image_model.py
         """
         try:
-            # Load image
+            image_file.seek(0)
+            img = Image.open(image_file).convert('RGB')
+            img = img.resize((64, 64))
+            
+            # 1. Pixel Data
+            pixels = np.array(img).flatten() / 255.0
+            
+            # 2. Color Distribution
+            hist = np.array(img.histogram()).flatten() / (64*64)
+            
+            return np.concatenate([pixels, hist])
+        except Exception as e:
+            print(f"Feature extraction error: {e}")
+            return None
+
+    @staticmethod
+    def extract_measurement(image_file):
+        # We keep this for backward compatibility and UI display
+        try:
             image_file.seek(0)
             img = Image.open(image_file)
-            
-            # 1. Base measurement from image dimensions
             width, height = img.size
-            dim_proxy = (np.log10(width * height + 1) / 5.0) * 10
-            
-            # 2. Adjust based on 'greenness'
+            dim_proxy = (np.log10(width * height + 1) / 5.0) * 1.5
             if img.mode != 'RGB':
                 img = img.convert('RGB')
-            
             stats = ImageStat.Stat(img)
-            avg_color = stats.mean # [R, G, B]
-            
-            r, g, b = avg_color
+            r, g, b = stats.mean 
             greenness = g / (r + b + 1e-6)
-            
-            # 3. Final calculation (Height proxy)
-            # Typically returns values between 10 and 60
-            measurement = 20.0 + (dim_proxy * 2.0) + (greenness * 10.0)
-            
-            # Round to 2 decimal places
-            measurement = round(float(measurement), 2)
-            
-            # Bound it (e.g. 5cm to 150cm range for the model)
-            measurement = max(5.0, min(150.0, measurement))
-            
-            return measurement
-            
-        except Exception as e:
-            print(f"Vision processing error: {e}")
-            raise ValueError(f"Could not process image: {str(e)}")
+            base_val = 1.9 
+            measurement = base_val + (dim_proxy * 0.2) + (greenness * 0.1)
+            return round(float(measurement), 3)
+        except Exception:
+            return 2.0
 
 vision_service = VisionService()

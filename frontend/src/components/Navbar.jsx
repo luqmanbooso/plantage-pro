@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Leaf, History, LayoutDashboard, User, LogOut, Info, Shield } from 'lucide-react';
+import { Leaf, History, LayoutDashboard, User, LogOut, Info, Shield, Sparkles } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
@@ -16,14 +16,14 @@ const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-6 px-4">
-      <div className="max-w-7xl w-full bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl px-6 py-3 flex justify-between items-center shadow-2xl">
+    <nav className="fixed top-0 left-0 right-0 z-50 pt-8 px-6 flex justify-center">
+      <div className="max-w-7xl w-full flex justify-between items-center py-2">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-3 text-white group">
-          <div className="bg-gradient-to-br from-emerald-400 to-green-600 p-2 rounded-lg group-hover:rotate-12 transition-transform duration-300">
-            <Leaf className="w-5 h-5 text-black" fill="currentColor" />
+          <div className="p-2 rounded-lg transition-transform duration-300">
+             <Leaf className="w-8 h-8 text-emerald-400" />
           </div>
-          <span className="font-bold text-xl tracking-tight hidden sm:block">PlantAge <span className="text-emerald-400">Pro</span></span>
+          <span className="font-black text-2xl tracking-tighter uppercase">Botanica <span className="text-white/40 italic">Pro</span></span>
         </Link>
 
         {/* Navigation Links */}
@@ -59,13 +59,13 @@ const Navbar = () => {
 const NavLink = ({ to, active, icon, label }) => (
   <Link
     to={to}
-    className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 ${active
-        ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_0_12px_rgba(52,211,153,0.1)]'
-        : 'text-gray-400 hover:text-white hover:bg-white/5'
+    className={`flex items-center space-x-2 px-6 py-2 rounded-full transition-all duration-300 ${active
+        ? 'bg-white text-black font-bold'
+        : 'text-gray-400 hover:text-white uppercase text-[10px] tracking-widest font-bold'
       }`}
   >
-    {icon}
-    <span className="hidden lg:block font-medium">{label}</span>
+    {label === "Predict" ? <Sparkles className="w-4 h-4" /> : icon}
+    <span>{label}</span>
   </Link>
 );
 
