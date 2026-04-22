@@ -69,6 +69,16 @@
   100% { top: 100%; opacity: 0; }
 }
 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: shake 0.3s ease-in-out 0s 2;
+}
+
 .animate-scanner-beam {
   animation: scanner-beam 2s ease-in-out infinite;
 }

@@ -101,7 +101,16 @@ const Predict = () => {
             {/* Right: Upload Box (Scaled Down) */}
             <div className="glass-card max-w-md mx-auto p-1 overflow-hidden relative group rounded-[32px] border-white/5 shadow-2xl">
                 <form onSubmit={handlePhotoSubmit} className="p-6 space-y-6 relative z-10">
-                   {error && <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-[9px] font-black uppercase tracking-widest text-center rounded-xl">{error}</div>}
+                   {error && (
+                      <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl flex flex-col items-center gap-2 text-center animate-shake">
+                         <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
+                            <span className="text-lg">⚠️</span>
+                         </div>
+                         <p className="text-[10px] font-bold uppercase tracking-wider leading-relaxed">
+                            {error}
+                         </p>
+                      </div>
+                   )}
                    
                    <div className="space-y-1.5">
                       <label className="text-[9px] uppercase font-black tracking-widest text-gray-500 ml-4">Identification Name (Opt)</label>
@@ -183,9 +192,17 @@ const Predict = () => {
 
                    <div className="pt-6 border-t border-white/5">
                       <p className="text-[10px] text-gray-600 uppercase font-black tracking-[0.3em] mb-2">Estimated Age</p>
-                      <div className="flex items-baseline gap-2">
-                         <span className="text-7xl font-black italic text-white tracking-tighter leading-none">{Math.round(result.predicted_age)}</span>
-                         <span className="text-xl font-black uppercase text-emerald-400 italic">Days</span>
+                      <div className="flex items-baseline gap-6">
+                         {Math.floor(Math.round(result.predicted_age) / 30) > 0 && (
+                            <div className="flex items-baseline gap-2">
+                               <span className="text-7xl font-black italic text-white tracking-tighter leading-none">{Math.floor(Math.round(result.predicted_age) / 30)}</span>
+                               <span className="text-xl font-black uppercase text-emerald-400 italic">Months</span>
+                            </div>
+                         )}
+                         <div className="flex items-baseline gap-2">
+                            <span className="text-7xl font-black italic text-white tracking-tighter leading-none">{Math.round(result.predicted_age) % 30}</span>
+                            <span className="text-xl font-black uppercase text-emerald-400 italic">Days</span>
+                         </div>
                       </div>
                    </div>
 

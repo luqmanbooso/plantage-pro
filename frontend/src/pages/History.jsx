@@ -158,9 +158,17 @@ const History = () => {
                    <div className="flex items-center justify-between w-full md:w-auto md:gap-12 pl-24 md:pl-0">
                       <div>
                          <p className="text-[10px] text-gray-600 uppercase font-black tracking-[0.3em] mb-1">Final Result</p>
-                         <div className="flex items-baseline gap-2">
-                           <span className="text-4xl font-black italic group-hover:text-emerald-400 transition-colors uppercase">{Math.round(pred.predicted_age)}</span>
-                           <span className="text-xs font-black uppercase text-gray-600">Days</span>
+                         <div className="flex items-baseline gap-4">
+                           {Math.floor(Math.round(pred.predicted_age) / 30) > 0 && (
+                              <div className="flex items-baseline gap-1">
+                                 <span className="text-4xl font-black italic group-hover:text-emerald-400 transition-colors">{Math.floor(Math.round(pred.predicted_age) / 30)}</span>
+                                 <span className="text-[10px] font-black uppercase text-gray-600">Mo</span>
+                              </div>
+                           )}
+                           <div className="flex items-baseline gap-1">
+                              <span className="text-4xl font-black italic group-hover:text-emerald-400 transition-colors">{Math.round(pred.predicted_age) % 30}</span>
+                              <span className="text-[10px] font-black uppercase text-gray-600">Days</span>
+                           </div>
                          </div>
                       </div>
                       

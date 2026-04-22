@@ -229,6 +229,15 @@ def upload_prediction():
         # Step 1: Identify Plant (PlantNet)
         identified_name, confidence = vision_service.identify_plant(file)
         
+        # VALIDATION: Ensure it is a plant
+        # If PlantNet returns "Unknown", it likely didn't find a plant match
+        if identified_name == "Unknown":
+            return error_response(
+                "Plant Not Detected: We couldn't recognize a botanical specimen in your photo. "
+                "Please ensure the plant is clearly visible and well-lit for a successful scan.", 
+                400
+            )
+
         # Determine final plant name to use
         # If user didn't provide one, use the identified one
         plant_name = user_provided_name or identified_name
